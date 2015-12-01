@@ -93,9 +93,12 @@ Using the SQL Database file given to you as the source of data to answer the que
     DELETE 1
 
   8. Deletes the shows for the user you just deleted.
-  
+
     delete from shows_users where user_id = 23;
     DELETE 1
+
+    ---cleans rows of all users not existing---
+    DELETE FROM shows_users WHERE user_id NOT IN (SELECT id FROM users)
 
 
 ## Section 2
@@ -193,6 +196,14 @@ Using the SQL Database file given to you as the source of data to answer the que
      Gary Carmichael
     (1 row)
 
+    ---ignore case---
+    fringe_shows=# select name from users where upper(name) like upper('%mi%');
+          name       
+    -----------------
+     Michael McLeod
+     Gary Carmichael
+    (2 rows)
+
 
 ## Section 3
 
@@ -201,6 +212,13 @@ Using the SQL Database file given to you as the source of data to answer the que
   18. Select the time for the Edinburgh Royal Tattoo.
 
     fringe_shows=# select time from times join shows on times.show_id = shows.id where shows.name = 'Edinburgh Royal Tattoo';
+     time  
+    -------
+     22:00
+    (1 row)
+
+    ---aliasing table names---
+    fringe_shows=# select s.name, t.time from times as t join shows as s on t.show_id = s.id where s.name = 'Edinburgh Royal Tattoo';
      time  
     -------
      22:00
@@ -217,6 +235,7 @@ Using the SQL Database file given to you as the source of data to answer the que
   20. Select all of the user names and the count of shows they're going to see.
 
     fringe_shows=# select users.name, count(shows_users.show_id) as NumberOfShows from shows_users right join users on shows_users.user_id = users.id group by users.name; 
+
            name       | numberofshows 
     ------------------+---------------
      Gary Carmichael  |             4
@@ -241,6 +260,62 @@ Using the SQL Database file given to you as the source of data to answer the que
      Rick Henri       |             5
      Evelyn Utterson  |             7
      Paul MacLean     |             0
+    (22 rows)
+
+    fringe_shows=# select users.name, count(shows_users.show_id) as NumberOfShows from users left join shows_users on users.id = shows_users.user_id group by users.name;
+
+           name       | numberofshows 
+    ------------------+---------------
+     Gary Carmichael  |             4
+     Michael McLeod   |             6
+     Keith Douglas    |             6
+     Stuart Ramsay    |             0
+     Peter Forbes     |             0
+     Callum Dougan    |             4
+     Callum Hogg      |             4
+     Sky Su           |             5
+     Oscar Brooks     |             4
+     Bethany Fraser   |             4
+     Aine Dunphy      |             0
+     Chris Sloan      |             4
+     Daniel Gillespie |             4
+     Ross Galloway    |             5
+     Euan Walls       |             0
+     Nicholas Hill    |             5
+     Andrew Insley    |             4
+     Nick Ridell      |             5
+     Jay Chetty       |             5
+     Rick Henri       |             5
+     Evelyn Utterson  |             7
+     Paul MacLean     |             0
+    (22 rows)
+
+    fringe_shows=# select users.name, count(shows_users.show_id) from shows_users right join users on shows_users.user_id = users.id group by users.id order by count asc;
+
+           name       | count 
+    ------------------+-------
+     Euan Walls       |     0
+     Paul MacLean     |     0
+     Stuart Ramsay    |     0
+     Peter Forbes     |     0
+     Aine Dunphy      |     0
+     Gary Carmichael  |     4
+     Bethany Fraser   |     4
+     Callum Dougan    |     4
+     Chris Sloan      |     4
+     Daniel Gillespie |     4
+     Oscar Brooks     |     4
+     Callum Hogg      |     4
+     Andrew Insley    |     4
+     Nick Ridell      |     5
+     Rick Henri       |     5
+     Nicholas Hill    |     5
+     Ross Galloway    |     5
+     Sky Su           |     5
+     Jay Chetty       |     5
+     Michael McLeod   |     6
+     Keith Douglas    |     6
+     Evelyn Utterson  |     7
     (22 rows)
 
   21. SELECT all users who are going to a show at 17:15.
@@ -277,6 +352,23 @@ Using the SQL Database file given to you as the source of data to answer the que
      13 | Callum Hogg
      16 | Oscar Brooks
      17 | Ross Galloway
+    (12 rows)
+
+    fringe_shows=# select users from users join shows_users on users.id = shows_users.user_id join times on shows_users.show_id = times.show_id where times.time = '17:15';
+             users          
+    ------------------------
+     (1,"Rick Henri")
+     (3,"Keith Douglas")
+     (5,"Andrew Insley")
+     (8,"Nick Ridell")
+     (9,"Evelyn Utterson")
+     (13,"Callum Hogg")
+     (15,"Gary Carmichael")
+     (11,"Nicholas Hill")
+     (12,"Michael McLeod")
+     (13,"Callum Hogg")
+     (16,"Oscar Brooks")
+     (17,"Ross Galloway")
     (12 rows)
 
 
